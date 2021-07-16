@@ -37,5 +37,7 @@ namespace lap4.Models
 
         public List<Category> ListCategory = new List<Category>();
         public virtual Category Category { get; set; }
+
+        public virtual ApplicationUser ApplicationUser { get; set; }
     }
 }

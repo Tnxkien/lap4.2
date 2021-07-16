@@ -64,5 +64,71 @@ namespace lap4.Controllers
             }
             return View(courses);
         }
+
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Course course = db.Courses.Find(id);
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+            ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name", course.CategoryId);
+            course.ListCategory = db.Categories.ToList();
+            return View(course);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include = "Id,LecturerId,Place,DateTime,CategoryId")] Course course)
+        {
+            ApplicationUser user = System.Web.HttpContext.Current.GetOwinContext().GetUserManager<ApplicationUserManager>().FindById(System.Web.HttpContext.Current.User.Identity.GetUserId());
+            course.LecturerId = user.Id;
+            if (ModelState.IsValid)
+            {
+
+                db.Entry(course).State = EntityState.Modified;
+                db.SaveChanges();
+                return RedirectToAction("Mine");
+            }
+            ViewBag.CategoryId = new SelectList(db.Categories, "Id", "Name", course.CategoryId);
+            return View(course);
+        }
+        public ActionResult Delete(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Course course = db.Courses.Find(id);
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+            return View(course);
+        }
+
+        // POST: Courses/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            Course course = db.Courses.Find(id);
+            db.Courses.Remove(course);
+            db.SaveChanges();
+            return RedirectToAction("Mine");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
     }
 }
+
